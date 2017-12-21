@@ -34,8 +34,6 @@ sealed trait WikipediaElement
   * @param id Unique wikipedia ID from the dump file.
   * @param title Wikipedia page's title.
   * @param nameSpace Text name of a wiki's name space. https://en.wikipedia.org/wiki/Wikipedia:Namespace
-  * @param pageType Similar to namespace, but Articles are split into ARTICLE, REDIRECT, DISAMBIGUATION, and LIST.
-  *                 Otherwise defaults to namespace.
   * @param revisionId identifier for the last revision.
   * @param revisionDate Date for when the page was last updated.
   * @param parserMessage SUCCESS or the error message
@@ -50,8 +48,7 @@ case class WikipediaPage(
   id: Long,
   title: String,
   redirect: String,
-  nameSpace: String,
-  pageType: String,
+  nameSpace: Long,
   revisionId: Long,
   revisionDate: Long,
   parserMessage: String,
@@ -69,18 +66,13 @@ case class WikipediaPage(
   * @param headerId Unique (to the page) identifier for a header.
   * @param title Header text
   * @param level Header depth. 1 is Lead H2 = 2, H3 = 3, etc.
-  * @param mainPage  A section's main_page.  This is derived from the main template. The main template
-  *                     contains very important semantic information.
-  * @param isAncillary If the header is a Reference, External Links, See more, etc type.
   */
 case class WikipediaHeader(
   parentPageId: Int,
   parentRevisionId: Int,
   headerId: Int,
   title: String,
-  level: Int,
-  mainPage: Option[String],
-  isAncillary: Boolean) extends WikipediaElement
+  level: Int) extends WikipediaElement
 
 /** Natural language part of the wikipedia page.
   *
@@ -107,7 +99,6 @@ case class WikipediaText (
   * @param parentHeaderId The header the element is a child of.
   * @param elementId Unique (to the page) integer for an element.
   * @param templateType Template name, definition can be found via https://en.wikipedia.org/wiki/Template:[Template name]
-  * @param isInfoBox Is the template part of the Infobox family
   * @param parameters Templates can have 0..n parameters.  These may be named (arg=val) or just  referenced sequentially.
   *                   In this code they are represented via list of tuple (arg, value).
   *                   If a argument is not named, then a place holder of *POS_[0 based index] is used.
@@ -118,7 +109,6 @@ case class WikipediaTemplate(
   parentHeaderId: Int,
   elementId: Int,
   templateType: String,
-  isInfoBox: Boolean,
   parameters: List[(String, String)]) extends WikipediaElement
 
 /** HTTP link to either an internal page or an external page.
